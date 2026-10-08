@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+html { scroll-behavior: auto; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body {
+  background: #0b0b0c;
+  color: #f5efe3;
+  font-family: Inter, system-ui, sans-serif;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: #d4af37; color: #0b0b0c; }
+
+.font-display { font-family: 'Playfair Display', serif; }
+
+.grain::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 90; opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.gold-text {
+  background: linear-gradient(105deg, #f6e27a 0%, #d4af37 35%, #9a7b1e 55%, #f6e27a 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shine 6s linear infinite;
+}
+@keyframes shine { to { background-position: 200% center; } }
+
+.mask-line { overflow: hidden; display: block; }
+.mask-line > span { display: block; will-change: transform; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+.perspective-stage { perspective: 1200px; }
+.preserve-3d { transform-style: preserve-3d; }
+
+.chat-scroll::-webkit-scrollbar { width: 6px; }
+.chat-scroll::-webkit-scrollbar-thumb { background: #2b2b30; border-radius: 99px; }

@@ -1,0 +1,17 @@
+{
+  "name": "bella-notte-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bella Notte — Pizzaria Artesanal de Luxo | Frontend imersivo + Backend de pré-atendimento",
+  "workspaces": ["frontend", "backend"],
+  "scripts": {
+    "install:all": "npm install --prefix frontend && npm install --prefix backend",
+    "dev": "concurrently -n \"backend,frontend\" -c \"red,gold\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "build": "npm run build --prefix frontend && npm run build --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
