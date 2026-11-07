@@ -19,9 +19,12 @@ WEB-PIZZA/
 ```
 
 ## Instalação (primeira vez)
-```powershell
-cd "c:\Users\Administrador\Documents\LDC\PROJETOS\WEB-PIZZA"
-npm install
+
+Clone o repositório e instale as dependências dos dois workspaces:
+
+```bash
+git clone https://github.com/LucasdoCondo/Web-Pizza.git
+cd Web-Pizza
 npm run install:all
 ```
 
