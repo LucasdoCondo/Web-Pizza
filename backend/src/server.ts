@@ -3,8 +3,8 @@ import cors from 'cors';
 import { v4 as uuid } from 'uuid';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
+app.use(express.json({ limit: '32kb' }));
 
 /* ---------- Catálogo (espelha o frontend) ---------- */
 const MENU: Record<string, { name: string; price: number }> = {
@@ -74,11 +74,18 @@ app.post('/api/chat', (req, res) => {
 
 /* ---------- 2) Pedidos ---------- */
 app.post('/api/orders', (req, res) => {
-  const { items, dough, name, phone, address } = req.body as Order & { items: { pizzaId: string; qty: number }[] };
-  if (!items?.length || !name || !address) return res.status(400).json({ error: 'Pedido incompleto.' });
+  const { items, dough, name, phone, address } = req.body as any;
+  const validItems = Array.isArray(items) && items.length > 0 && items.length <= 20 &&
+    items.every((item) => item && Object.prototype.hasOwnProperty.call(MENU, item.pizzaId) && Number.isInteger(item.qty) && item.qty > 0 && item.qty <= 20);
+  if (!validItems || !Object.prototype.hasOwnProperty.call(DOUGH_DELTA, dough ?? '') ||
+      typeof name !== 'string' || !name.trim() || name.trim().length > 100 ||
+      typeof address !== 'string' || !address.trim() || address.trim().length > 300 ||
+      (phone !== undefined && (typeof phone !== 'string' || phone.length > 30))) {
+    return res.status(400).json({ error: 'Dados do pedido inválidos.' });
+  }
   const { subtotal, deliveryFee, total } = totals(items, dough);
-  const id = uuid().slice(0, 8).toUpperCase();
-  const order: Order = { id, items, dough, name, phone, address, subtotal, deliveryFee, total, status: 'RECEBIDO', etaMinutes: 35, createdAt: Date.now() };
+  const id = uuid().toUpperCase();
+  const order: Order = { id, items, dough, name: name.trim(), phone: phone ?? '', address: address.trim(), subtotal, deliveryFee, total, status: 'RECEBIDO', etaMinutes: 35, createdAt: Date.now() };
   orders.set(id, order);
 
   // Simulação de cozinha: RECEBIDO -> A_PREPARAR (4s) -> NO_FORNO (9s) -> ENTREGUE path (16s / 24s)
@@ -106,7 +113,11 @@ app.get('/api/orders/:id/stream', (req, res) => {
   push(order);
   if (!listeners.has(id)) listeners.set(id, new Set());
   listeners.get(id)!.add(push);
-  req.on('close', () => listeners.get(id)?.delete(push));
+  req.on('close', () => {
+    const subscribers = listeners.get(id);
+    subscribers?.delete(push);
+    if (subscribers?.size === 0) listeners.delete(id);
+  });
 });
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
